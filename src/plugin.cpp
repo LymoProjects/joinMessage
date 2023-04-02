@@ -19,11 +19,8 @@ extern Logger logger;
 void PluginInit()
 {
     Event::PlayerJoinEvent::subscribe([](Event::PlayerJoinEvent const & e){
-        auto emerald {ItemStack::create("minecraft:emerald")};
-
-        e.mPlayer->giveItem(emerald);
-
         lymoProjects__::joinMessage::ref()(e.mPlayer);
+        lymoProjects__::joinMessage::ref().set(nullptr, "");
         
         return true;
     });
