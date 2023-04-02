@@ -38,3 +38,8 @@ out
 
 # Jetbrains IDEs
 .idea
+
+# joinMessage
+.cache
+.xmake
+compile_commands.json
