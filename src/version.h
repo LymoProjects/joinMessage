@@ -27,7 +27,7 @@
 // Describe what your plugin does
 // We recommend you start the introduction with a third-person singular verb.
 #define PLUGIN_INTRODUCTION "Customize different messages for each player when joining game."
-#define PLUGIN_AUTHOR "lymoProjects"
+#define PLUGIN_AUTHOR "LymoProjects"
 
 // The version of your plugin. If you do not know how to set it, please refer
 // to https://semver.org/ .
