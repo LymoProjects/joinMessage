@@ -51,7 +51,8 @@ target("join_message")
     )
 
     add_files(
-        "src/*.cpp"
+        "src/*.cpp",
+        "src/impl/*.cxx"
     )
 
     add_syslinks(
