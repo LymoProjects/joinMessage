@@ -1,43 +1,56 @@
 #pragma once
 
 #include <string>
-#include <map>
+#include <unordered_map>
 #include <utility>
-
-#include <llapi/mc/ItemStack.hpp>
-#include <llapi/mc/Player.hpp>
+#include <mutex>
 
 #include <co/fs.h>
 #include <co/json.h>
-#include <co/co.h>
-#include <co/co/mutex.h>
+#include <co/fastring.h>
 
 namespace lymoProjects__ {
     class joinMessage {
-        std::map<std::string, std::string> uuidToMsg;
-        co::Mutex mutable mut;
+        std::unordered_map<fastring, fastring> uuidToMsg;
+        std::mutex mutable mut;
 
-        // * save to local.
         auto saveToLocal() const -> void {
             json::Json pref(json::array());
 
             for (auto const & e : uuidToMsg) {
                 json::Json plrJoinMsg(json::object());
 
-                plrJoinMsg.add_member(e.first.c_str(), e.second.c_str());
+                plrJoinMsg.add_member("uuid", e.first.c_str());
+                plrJoinMsg.add_member("msg", e.second.c_str());
 
                 pref.push_back(plrJoinMsg);
             }
 
-            fs::mkdir("plugins/join_message", true);
-            fs::file prefJsonFile("plugins/join_message/pref.json", 'w');
+            fastring prefPath("plugins/.join_message/");
+
+            fs::mkdir(prefPath, true);
+            fs::file prefJsonFile(prefPath + "pref.json", 'w');
 
             prefJsonFile.write(pref.pretty());
         }
 
-        explicit joinMessage() {
-            uuidToMsg.insert(std::pair<std::string, std::string>("default", "§4welcome"));
+        auto loadFromLocal() -> void {
+            fastring prefJsonFilePath("plugins/.join_message/pref.json");
 
+            if (fs::exists(prefJsonFilePath)) {
+                fs::file prefJsonFile(prefJsonFilePath, 'r');
+
+                json::Json pref(json::parse(prefJsonFile.read(prefJsonFile.size())));
+
+                if (!pref.is_null()) {
+                    for (auto i {pref.begin()}; i != pref.end(); ++i) {
+                        uuidToMsg.emplace(std::make_pair<fastring, fastring>((*i).get("uuid").as_string(), (*i).get("msg").as_string()));
+                    }
+                }
+            }
+        }
+
+        explicit joinMessage() {
             loadFromLocal();
         }
     public:
@@ -48,69 +61,32 @@ namespace lymoProjects__ {
         joinMessage(joinMessage const &) = delete;
         auto operator=(joinMessage const &) -> joinMessage & = delete;
 
-        // * load from local.
-        auto loadFromLocal() -> void {
-            // if (true) {
-            //     fastring jsonFileData;
-
-            //     json::Json pref(json::parse(jsonFileData));
-
-                
-            // }
-        }
-
-        // * return the only one obejct of class joinMessage.
         static auto ref() -> joinMessage & {
             joinMessage static jm__;
 
             return jm__;
         }
 
-        // * set a join message for a player.
-        auto set(Player * plr, std::string_view msg) -> void {
-            co::MutexGuard mgd(mut);
+        auto set(std::string uuid, std::string msg) -> void {
+            std::scoped_lock<std::mutex> guard(mut);
 
-            uuidToMsg.insert(std::pair<std::string, std::string>("1", "fuck"));
-            uuidToMsg.insert(std::pair<std::string, std::string>("2", "damn"));
-            uuidToMsg.insert(std::pair<std::string, std::string>("3", "shit"));
-            uuidToMsg.insert(std::pair<std::string, std::string>("4", "you"));
+            uuidToMsg.emplace(std::make_pair<fastring, fastring>(uuid.c_str(), msg.c_str()));
         }
 
-        // * get join message which belongs to a player. co safety.
-        auto get(Player * plr) const -> std::string {
-            co::MutexGuard mgd(mut);
+        auto get(std::string uuid) const -> std::string {
+            std::scoped_lock<std::mutex> guard(mut);
 
-            return uuidToMsg.at(
-                uuidToMsg.find(plr->getUuid()) != uuidToMsg.end() ? 
-                plr->getUuid() : "default"
-            );
-        }
-
-        // * remove a join message for a player.
-        auto remove(Player * plr) -> void {
-
-        }
-
-        // * send join message to player. co safety.
-        auto operator()(Player * plr) const -> void {
-            std::string msg;
-
-            {
-                co::MutexGuard mgd(mut);
-
-                msg = uuidToMsg.at(
-                    uuidToMsg.find(plr->getUuid()) != uuidToMsg.end() ? 
-                    plr->getUuid() : "default"
-                );
+            if (uuidToMsg.find(uuid.c_str()) != uuidToMsg.end()) {
+                return uuidToMsg.at(uuid.c_str()).c_str();
+            } else {
+                return "";
             }
+        }
 
-            plr->sendTitlePacket(
-                msg, 
-                TitleType::SetTitle, 
-                1, 
-                5, 
-                1
-            );
+        auto erase(std::string uuid) -> void {
+            std::scoped_lock<std::mutex> guard(mut);
+
+            uuidToMsg.erase(uuid.c_str());
         }
     };
 } // namespace lymoProjects__

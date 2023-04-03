@@ -4,9 +4,7 @@
  */
 
 #include <llapi/EventAPI.h>
-#include <llapi/LoggerAPI.h>
-// We recommend using the global logger.
-extern Logger logger;
+#include <llapi/mc/Player.hpp>
 
 #include "version.h"
 
@@ -14,14 +12,18 @@ extern Logger logger;
 
 /**
  * @brief The entrypoint of the plugin. DO NOT remove or rename this function.
- *        
+ *
  */
-void PluginInit()
-{
-    Event::PlayerJoinEvent::subscribe([](Event::PlayerJoinEvent const & e){
-        lymoProjects__::joinMessage::ref()(e.mPlayer);
-        lymoProjects__::joinMessage::ref().set(nullptr, "");
-        
+void PluginInit() {
+    Event::PlayerJoinEvent::subscribe([](Event::PlayerJoinEvent const &e) {
+        e.mPlayer->sendTitlePacket(
+            lymoProjects__::joinMessage::ref().get(e.mPlayer->getUuid()), 
+            TitleType::SetTitle, 
+            1, 
+            5, 
+            1
+        );
+
         return true;
     });
 }
