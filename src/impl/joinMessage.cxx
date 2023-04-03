@@ -3,6 +3,7 @@
 #include <co/fastring.h>
 #include <co/fs.h>
 #include <co/json.h>
+#include <mutex>
 
 namespace lymoProjects__ {
     auto joinMessage::saveToLocal() const -> void {
@@ -20,13 +21,13 @@ namespace lymoProjects__ {
         fastring prefPath("plugins/.join_message/");
 
         fs::mkdir(prefPath, true);
-        fs::file prefJsonFile(prefPath + "pref.json", 'w');
+        fs::file prefJsonFile(prefPath + "id_msg.json", 'w');
 
         prefJsonFile.write(pref.pretty());
     }
 
     auto joinMessage::loadFromLocal() -> void {
-        fastring prefJsonFilePath("plugins/.join_message/pref.json");
+        fastring prefJsonFilePath("plugins/.join_message/id_msg.json");
 
         if (fs::exists(prefJsonFilePath)) {
             fs::file prefJsonFile(prefJsonFilePath, 'r');
@@ -55,16 +56,28 @@ namespace lymoProjects__ {
         return jm__;
     }   
 
-    auto joinMessage::set(std::string id, std::string msg) -> void {
+    auto joinMessage::has(std::string const & id) const -> bool {
         std::scoped_lock<std::mutex> guard(mut);
 
-        idToMsg.emplace(std::make_pair(id, msg));
+        return idToMsg.find(id) != idToMsg.end();
+    }
+
+    auto joinMessage::set(std::string id, std::string msg) -> void {
+        if (has(id)) {
+            std::scoped_lock<std::mutex> guard(mut);
+
+            idToMsg[id] = std::move(msg);
+        } else {
+            std::scoped_lock<std::mutex> guard(mut);
+
+            idToMsg.emplace(std::make_pair<std::string, std::string>(std::move(id), std::move(msg)));
+        }
     }
 
     auto joinMessage::get(std::string id) const -> std::string {
-        std::scoped_lock<std::mutex> guard(mut);
+        if (has(id)) {
+            std::scoped_lock<std::mutex> guard(mut);
 
-        if (idToMsg.find(id) != idToMsg.end()) {
             return idToMsg.at(id);
         } else {
             return "";

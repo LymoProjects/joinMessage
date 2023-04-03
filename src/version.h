@@ -31,15 +31,15 @@
 
 // The version of your plugin. If you do not know how to set it, please refer
 // to https://semver.org/ .
-#define PLUGIN_VERSION_MAJOR 0
-#define PLUGIN_VERSION_MINOR 4
+#define PLUGIN_VERSION_MAJOR 1
+#define PLUGIN_VERSION_MINOR 0
 #define PLUGIN_VERSION_REVISION 0
 #define PLUGIN_VERSION_BUILD 0
 #define PLUGIN_VERSION_ACTIONS 0
 
 // The stage of your plugin, which can be PLUGIN_VERSION_DEV, PLUGIN_VERSION_BETA
 // and PLUGIN_VERSION_RELEASE
-#define PLUGIN_VERSION_STATUS PLUGIN_VERSION_DEV
+#define PLUGIN_VERSION_STATUS PLUGIN_VERSION_RELEASE
 
 // The target protocol version of your plugin. If you do not know how to set it,
 // please start the latest version of LiteLoaderBDS and get the protocol version.
