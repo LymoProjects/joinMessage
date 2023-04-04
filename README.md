@@ -8,6 +8,7 @@
 1. "-jm:set xxxx"
 2. "-jm:get"
 3. "-jm:erase"
+4. "-jm:help"
 
 "-jm:set xxxx":
 - 命令用于设定自己此后进入本服务器时向其他玩家通知的内容; 
@@ -21,6 +22,9 @@
 
 "-jm:erase":
 - 命令用于删除先前自己设定过的自定义文本.
+
+"-jm:help":
+- 命令用于查看本插件的使用说明.
 
 ## 深入了解
 - 本插件在服务器启动时会读取plugins/.join_message/id_msg.json中的内容, 服务器启动后不再依赖该json文件. 
