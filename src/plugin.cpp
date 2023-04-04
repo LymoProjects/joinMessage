@@ -5,7 +5,6 @@
 
 #include <string>
 #include <string_view>
-#include <thread>
 
 #include <llapi/EventAPI.h>
 
@@ -15,9 +14,6 @@
 #include "version.h"
 
 #include "joinMessage.hpp"
-#include "threadPool.hpp"
-
-lymoProjects__::threadPool static worker(std::thread::hardware_concurrency());
 
 /**
  * @brief The entrypoint of the plugin. DO NOT remove or rename this function.
@@ -28,11 +24,7 @@ void PluginInit() {
         std::string plrMsg(lymoProjects__::joinMessage::ref().get(e.mPlayer->getXuid()));
 
         if (!plrMsg.empty()) {
-            worker.submit([thisPlayer {e.mPlayer}, plrMsg__ {std::move(plrMsg)}]{
-                for (Player * plr : Level::getAllPlayers()) {
-                    thisPlayer->sendTextTalkPacket(plrMsg__, plr);
-                }
-            });
+            Level::broadcastText(plrMsg, TextType::RAW);
         }
 
         return true;
@@ -45,20 +37,20 @@ void PluginInit() {
             if (spacePos != e.mMessage.npos) {
                 lymoProjects__::joinMessage::ref().set(e.mPlayer->getXuid(), e.mMessage.substr(spacePos + 1));
 
-                e.mPlayer->sendTextTalkPacket("入服通知设置成功!", e.mPlayer);
+                e.mPlayer->sendText("入服通知设置成功!");
             } else {
-                e.mPlayer->sendTextTalkPacket("入服通知设置失败!", e.mPlayer);
+                e.mPlayer->sendText("入服通知设置失败!");
             }
 
             return false;
         } else if (e.mMessage.starts_with("-jm:get")) {
-            e.mPlayer->sendTextTalkPacket(lymoProjects__::joinMessage::ref().get(e.mPlayer->getXuid()), e.mPlayer);
+            e.mPlayer->sendText(lymoProjects__::joinMessage::ref().get(e.mPlayer->getXuid()));
 
             return false;
         } else if (e.mMessage.starts_with("-jm:erase")) {
             lymoProjects__::joinMessage::ref().erase(e.mPlayer->getXuid());
 
-            e.mPlayer->sendTextTalkPacket("入服通知清除成功!", e.mPlayer);
+            e.mPlayer->sendText("入服通知清除成功!");
 
             return false;
         }
