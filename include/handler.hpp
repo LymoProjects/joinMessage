@@ -41,6 +41,20 @@ namespace lymoProjects__ {
     }
 
     inline
+    auto handleCmdHelp(Player * plr) -> void {
+        std::string static helpContent(
+            "§2****命令列表****\n"
+            "§e-jm:set[空格][自定义文本] §f设置文本\n"
+            "§e-jm:get §f获取之前设置过的文本\n"
+            "§e-jm:erase §f删除之前设置过的文本\n"
+            "§e-jm:help §f查看相关命令\n"
+            "§2********\n"
+        );
+
+        plr->sendText(helpContent);
+    }
+
+    inline
     auto handlePlayerChatEvent(Event::PlayerChatEvent const & e) -> bool {
         if (e.mMessage.starts_with("-jm:set")) {
             handleCmdSet(e.mPlayer, e.mMessage);
@@ -48,6 +62,8 @@ namespace lymoProjects__ {
             handleCmdGet(e.mPlayer);
         } else if (e.mMessage.starts_with("-jm:erase")) {
             handleCmdErase(e.mPlayer);
+        } else if (e.mMessage.starts_with("-jm:help")) {
+            handleCmdHelp(e.mPlayer);
         } else {
             return true;
         }
