@@ -44,6 +44,10 @@ void PluginInit() {
 
             if (spacePos != e.mMessage.npos) {
                 lymoProjects__::joinMessage::ref().set(e.mPlayer->getXuid(), e.mMessage.substr(spacePos + 1));
+
+                e.mPlayer->sendTextTalkPacket("入服通知设置成功!", e.mPlayer);
+            } else {
+                e.mPlayer->sendTextTalkPacket("入服通知设置失败!", e.mPlayer);
             }
 
             return false;
@@ -53,6 +57,8 @@ void PluginInit() {
             return false;
         } else if (e.mMessage.starts_with("-jm:erase")) {
             lymoProjects__::joinMessage::ref().erase(e.mPlayer->getXuid());
+
+            e.mPlayer->sendTextTalkPacket("入服通知清除成功!", e.mPlayer);
 
             return false;
         }

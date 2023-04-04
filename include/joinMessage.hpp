@@ -10,14 +10,20 @@ namespace lymoProjects__ {
         std::mutex mutable mut;
 
         // * Destructor will call this function to save all [id : msg] to local.
+        // * Path for local is plugins/.join_message/id_msg.json.
         auto saveToLocal() const -> void;
 
         // * Constructor will call this function to reload all [id : msg] from local.
+        // * Path for local is plugins/.join_message/id_msg.json.
+        // * When reloaded, the plugin will run and no longer require id_msg.json.
         auto loadFromLocal() -> void;
 
+        // * Inside, there will be a call to loadFromLocal().
         explicit joinMessage();
     
     public:
+    
+        // * Inside, there will be a call to saveToLocal().
         ~joinMessage();
 
         joinMessage(joinMessage const &) = delete;
