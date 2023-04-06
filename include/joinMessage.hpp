@@ -5,7 +5,7 @@
 #include <mutex>
 
 namespace lymoProjects__ {
-    class joinMessage {
+    class __declspec(dllexport) joinMessage {
         std::unordered_map<std::string, std::string> idToMsg;
         std::mutex mutable mut;
 
