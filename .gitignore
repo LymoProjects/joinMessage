@@ -43,3 +43,4 @@ out
 .cache
 .xmake
 compile_commands.json
+vc140.pdb
