@@ -3,8 +3,6 @@
  * @brief The main file of the plugin
  */
 
-#include "version.h"
-
 #include "eventHandler.hpp"
 #include "gui.hpp"
 
